@@ -7,4 +7,4 @@ public class Rotator : MonoBehaviour
         transform.Rotate(new Vector3(15, 30, 45) * Time.deltaTime);
     }
 }
-//why tf does this goddamn idiotic truckload of shit doesn't work
+//you spin me right round, spin me right round, like a record, baby, right round, round, round

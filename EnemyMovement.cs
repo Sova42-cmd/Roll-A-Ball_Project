@@ -17,3 +17,4 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 }
+// just follows the player, this one's understandable.

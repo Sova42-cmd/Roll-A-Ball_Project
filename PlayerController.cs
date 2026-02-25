@@ -1,27 +1,48 @@
+// MonoBehaviour/Vector3/GameObject basically for all classes
 using UnityEngine;
+// for onMove function
 using UnityEngine.InputSystem;
+// for text
 using TMPro;
 
+// defines code, allows idk koroche nado
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 10;
-    public TextMeshProUGUI countText;
-    public GameObject winTextObject;
     
+    // visible in Inspector
+    public float speed = 1;
+    public TextMeshProUGUI countText;
+    public Transform pickUpObjectParent;
+    
+    // NOT visible in Inspector
     private Rigidbody _rb;
-    private int _count;
+    
+    private int _count = 0;
+    private int _maxCoin;
+    
     private float _movementX;
     private float _movementY;
     
+    
+    // runs once when game's loaded
     private void Start()
     {
         _rb = GetComponent<Rigidbody>();
-        _count = 0;
-        
-        SetCountText();
-        winTextObject.SetActive(false);
+        _maxCoin = pickUpObjectParent.childCount; //looks at that parent object and counts how many items are inside.
+        _count = _maxCoin; //Sets starting score to the total number of items found.
+       
+        SetCountText(_count);
     }
-
+    
+    
+    // Runs every frame
+    private void Update()
+    {
+        var movement = new Vector3(_movementX, 0, _movementY);
+        _rb.AddForce(movement * speed); // pushes the ball in the direction of input multiplied by speed.
+    }
+    
+    //triggered by the Input System whenever move (press WASD)
     private void OnMove(InputValue movementValue)
     {
         var movementVector = movementValue.Get<Vector2>(); 
@@ -29,47 +50,42 @@ public class PlayerController : MonoBehaviour
         _movementX = movementVector.x;
         _movementY = movementVector.y;
     }
-
-    private void SetCountText()
-    {
-        countText.text = "Count: " + _count.ToString();
-        if (_count >= 24)
-        {
-            winTextObject.SetActive(true);
-        }
-    }
-
-    private void FixedUpdate()
-    {
-        var movement = new Vector3(_movementX, 0.0f, _movementY); 
-        
-        _rb.AddForce(movement * speed); 
-    }
-
+    
+    
+    //This happens when hit something solid.
     private void OnCollisionEnter(Collision collision)
     {
-        if (!collision.gameObject.CompareTag("Enemy")) 
+        if (!collision.gameObject.CompareTag("Enemy")) //Checks if the thing you hit has the "Enemy" label.
         {
             return;
         }
-        ShowGameOverUI();
-        Destroy(gameObject);
+        Destroy(gameObject); //kills the player!! 
     }
 
-    private void ShowGameOverUI()
-    {
-        winTextObject.gameObject.SetActive(true);
-        winTextObject.GetComponent<TextMeshProUGUI>().text = "You Lose!";
-    }
-
+    
+    
+    //also checks when hit something, but doesn't stop you
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.gameObject.CompareTag("pickUpCube"))
-            return;
+        if (other.gameObject.CompareTag("pickUpCube")) //checks if the item is collectible
+        {
+            _count--; //minus from how many there were in parents object
+            SetCountText(_count);
+            Destroy(other.gameObject); //then removes from the world
+        }
+    }
+    
+    
 
-        other.gameObject.SetActive(false);
-        _count = _count + 1;
-        
-        SetCountText();
+    private void SetCountText(int score) //updates what player sees on screen
+    {
+        if (_count > 0) //check ete collectibles mnacel a shows how many
+        {
+            countText.text = "Dice Remaining: " + score.ToString();
+        }
+        else //ete chka this text
+        {
+            countText.text = "Good job!";
+        }
     }
 }
