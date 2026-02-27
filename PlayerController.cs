@@ -13,11 +13,13 @@ public class PlayerController : MonoBehaviour
     public float speed = 1;
     public TextMeshProUGUI countText;
     public Transform pickUpObjectParent;
+    public GameManagerScript gameManager;
+    public GameObject enemyObject;
     
     // NOT visible in Inspector
     private Rigidbody _rb;
     
-    private int _count = 0;
+    private int _count;
     private int _maxCoin;
     
     private float _movementX;
@@ -59,20 +61,22 @@ public class PlayerController : MonoBehaviour
         {
             return;
         }
-        Destroy(gameObject); //kills the player!! 
+        
+        gameObject.SetActive(false); // Instead of destroying just set's inactive
+        gameManager.GameOver(); // shows game over UI
     }
 
-    
     
     //also checks when hit something, but doesn't stop you
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("pickUpCube")) //checks if the item is collectible
+        if (!other.gameObject.CompareTag("pickUpCube")) //checks if the item is collectible
         {
-            _count--; //minus from how many there were in parents object
-            SetCountText(_count);
-            Destroy(other.gameObject); //then removes from the world
+            return;
         }
+        _count--; //minus from how many there were in parents object
+        SetCountText(_count);
+        Destroy(other.gameObject); //then removes from the world
     }
     
     
@@ -85,7 +89,8 @@ public class PlayerController : MonoBehaviour
         }
         else //ete chka this text
         {
-            countText.text = "Good job!";
+           gameManager.GameWin();
+           enemyObject.SetActive(false);
         }
     }
 }
